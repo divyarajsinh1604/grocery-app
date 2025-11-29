@@ -2,9 +2,7 @@ import sqlite3
 from werkzeug.security import generate_password_hash
 
 def get_db():
-    # return a connection to the SQLite database file
-    # adjust the filename/path as needed for your application
-    conn = sqlite3.connect('grocery.db')
+    conn = sqlite3.connect("grocery.db")
     conn.row_factory = sqlite3.Row
     return conn
 
@@ -33,12 +31,13 @@ def init_db():
     );
     """)
 
-    # Customers table
+    # Customers table – IMPORTANT: IF NOT EXISTS + next_payment_date
     cur.execute("""
     CREATE TABLE IF NOT EXISTS customers (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         name TEXT NOT NULL,
-        due REAL NOT NULL DEFAULT 0
+        due REAL NOT NULL DEFAULT 0,
+        next_payment_date TEXT
     );
     """)
 
@@ -86,8 +85,3 @@ def create_admin():
 
     conn.commit()
     conn.close()
-
-
-if __name__ == "__main__":
-    init_db()
-    create_admin()
