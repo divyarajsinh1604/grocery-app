@@ -2,7 +2,7 @@ import sqlite3
 from werkzeug.security import generate_password_hash
 
 def get_db():
-    conn = sqlite3.connect("grocery.db")
+    conn = sqlite3.connect("grocery_v2.db")
     conn.row_factory = sqlite3.Row
     return conn
 
