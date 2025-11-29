@@ -1,0 +1,262 @@
+/* =========================================================
+   TROPICAL SOFT UI — NEW COLORS + EXTRA IMPROVEMENTS
+========================================================= */
+
+:root {
+    --mint: #9ff5c1;
+    --mint-dark: #6fdca0;
+
+    --aqua: #8fe9ff;
+    --aqua-dark: #58d2f7;
+
+    --yellow: #ffef9c;
+    --yellow-dark: #ffe573;
+
+    --sky: #a8c8ff;
+    --sky-dark: #7aa9ff;
+
+    --pink: #ffb4c8;
+    --pink-dark: #ff8cad;
+
+    --text-dark: #263238;
+    --text-light: #546e7a;
+
+    --bg-main: #f6fbff;
+    --bg-card: #ffffff;
+    --border: #dde6ef;
+}
+
+/* Smooth animations globally */
+* {
+    transition: 0.25s ease;
+}
+
+/* Body */
+body {
+    background: var(--bg-main);
+    font-family: "Segoe UI", Roboto, sans-serif;
+    margin: 0;
+    padding-bottom: 70px;
+    color: var(--text-dark);
+    line-height: 1.5;
+}
+
+/* Layout Containers */
+.container {
+    padding-top: 20px;
+}
+
+.card {
+    background: var(--bg-card);
+    border-radius: 14px;
+    border: 1px solid var(--border);
+    box-shadow: 0px 4px 14px rgba(0,0,0,0.06);
+    padding: 18px;
+}
+.card:hover {
+    transform: translateY(-3px);
+}
+
+/* Titles */
+.page-title {
+    font-size: 28px;
+    font-weight: 700;
+    color: var(--text-dark);
+    margin-bottom: 20px;
+}
+
+/* Navbar */
+.navbar {
+    background: linear-gradient(90deg, #c2fff0, #e6faff);
+    border-bottom: 1px solid var(--border);
+    padding: 10px;
+}
+
+.navbar-brand, .nav-link {
+    color: #1f3a3d !important;
+    font-weight: 600;
+    letter-spacing: 0.4px;
+}
+
+.nav-link:hover {
+    color: var(--sky-dark) !important;
+}
+
+/* Buttons */
+.btn {
+    padding: 10px 16px;
+    border-radius: 10px;
+    font-weight: 600;
+    border: none;
+    box-shadow: 0px 2px 6px rgba(0,0,0,0.12);
+}
+
+.btn:hover {
+    transform: translateY(-2px);
+}
+
+/* Button Colors */
+.btn-primary {
+    background: var(--sky);
+}
+.btn-primary:hover {
+    background: var(--sky-dark);
+}
+
+.btn-success {
+    background: var(--mint);
+    color: #114d27;
+}
+.btn-success:hover {
+    background: var(--mint-dark);
+}
+
+.btn-warning {
+    background: var(--yellow);
+    color: #5e4b00;
+}
+.btn-warning:hover {
+    background: var(--yellow-dark);
+}
+
+.btn-danger {
+    background: var(--pink);
+    color: #57141f;
+}
+.btn-danger:hover {
+    background: var(--pink-dark);
+}
+
+/* Inputs & Select */
+input, select {
+    border-radius: 10px !important;
+    border: 1px solid var(--border) !important;
+    padding: 10px;
+    background: #fbfdff;
+}
+
+/* Focus Glow */
+input:focus, select:focus {
+    outline: none;
+    border-color: var(--aqua);
+    box-shadow: 0 0 5px var(--aqua-dark);
+}
+
+/* Form Boxes */
+.form-box {
+    background: var(--bg-card);
+    padding: 25px;
+    border-radius: 14px;
+    border: 1px solid var(--border);
+    box-shadow: 0 4px 14px rgba(0,0,0,0.05);
+}
+
+/* Tables */
+.table {
+    border-radius: 12px;
+    background: white;
+    border: 1px solid var(--border);
+    overflow: hidden;
+}
+
+.table th {
+    background: linear-gradient(to right, #dff7ff, #f7fdff);
+    font-weight: 700;
+    color: var(--text-dark);
+}
+
+.table td {
+    color: var(--text-light);
+}
+
+/* Animated Hover Row */
+.table tbody tr {
+    transition: 0.25s ease;
+}
+.table tbody tr:hover {
+    background: #eaf5ff;
+    transform: scale(1.01);
+}
+
+/* =========================================================
+   PAGE-SPECIFIC COLORS
+========================================================= */
+
+/* PRODUCTS page */
+.page-products .page-title {
+    color: var(--sky-dark);
+}
+
+/* BILLING page */
+.page-billing .page-title {
+    color: var(--mint-dark);
+}
+.page-billing .total {
+    font-size: 22px;
+    font-weight: 700;
+    color: var(--pink-dark);
+}
+
+/* CUSTOMERS */
+.page-customers .page-title {
+    color: var(--pink-dark);
+}
+.page-customers tr:hover {
+    background: #ffeaf1 !important;
+}
+
+/* STOCK */
+.page-stock .page-title {
+    color: var(--yellow-dark);
+}
+.page-stock td:last-child {
+    font-weight: 700;
+    color: #007a3d;
+}
+
+/* DASHBOARD CARDS */
+.stat-card {
+    border-radius: 16px;
+    padding: 18px;
+    background: #ffffff;
+    border: 1px solid var(--border);
+    box-shadow: 0px 4px 18px rgba(0,0,0,0.06);
+    transition: 0.3s ease;
+}
+.stat-card:hover {
+    transform: translateY(-5px);
+}
+
+/* INVOICE */
+.page-invoice {
+    background: #fff;
+    border-radius: 16px;
+    border: 1px solid var(--border);
+    padding: 25px;
+    max-width: 850px;
+    margin: auto;
+    box-shadow: 0px 4px 14px rgba(0,0,0,0.05);
+}
+
+.page-invoice .page-title {
+    text-align: center;
+    color: var(--sky-dark);
+}
+
+.page-invoice .total-box {
+    font-weight: 700;
+    font-size: 24px;
+    color: var(--pink-dark);
+    text-align: right;
+}
+
+/* LOGIN */
+.page-login .login-box {
+    width: 360px;
+    margin: 120px auto;
+    padding: 32px;
+    background: #f9feff;
+    border-radius: 16px;
+    border: 1px solid var(--border);
+    box-shadow: 0 4px 18px rgba(0,0,0,0.07);
+}

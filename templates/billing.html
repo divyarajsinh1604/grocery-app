@@ -1,0 +1,254 @@
+<!-- templates/billing.html -->
+{% extends "base.html" %}
+{% block content %}
+
+<h2 class="mb-4">Billing</h2>
+
+{% if error %}
+<div class="alert alert-danger">
+  {{ error }}
+</div>
+{% endif %}
+
+<!-- Bill total – fixed at top-right under navbar -->
+<div style="position: absolute; top: 90px; right: 40px;">
+  <h4 class="text-success fw-bold">Total: ₹ <span id="grand-total">0.00</span></h4>
+</div>
+
+<form method="post">
+
+  <!-- Customer + Payment -->
+  <div class="card mb-4">
+    <div class="card-body">
+
+      <!-- Customer Selection -->
+      <div class="mb-3">
+        <label class="form-label">Customer</label>
+        <select name="customer_id" class="form-select">
+          <option value="cash">Walk-in / Cash Customer</option>
+          {% for c in customers %}
+            <option value="{{ c.id }}">{{ c.name }}</option>
+          {% endfor %}
+        </select>
+      </div>
+
+      <!-- Payment Type -->
+      <div class="mb-3">
+        <label class="form-label d-block">Payment Type</label>
+
+        <div class="form-check form-check-inline">
+          <input class="form-check-input" type="radio" name="payment_type" id="pay_now" value="cash" checked>
+          <label class="form-check-label" for="pay_now">Pay Now (Cash)</label>
+        </div>
+
+        <div class="form-check form-check-inline">
+          <input class="form-check-input" type="radio" name="payment_type" id="pay_later" value="credit">
+          <label class="form-check-label" for="pay_later">Pay Later</label>
+        </div>
+      </div>
+
+      <!-- Expected Payment Date (only visible for Udhar) -->
+      <div class="mb-3" id="due-date-block" style="display:none;">
+        <label class="form-label">Expected Payment Date (if Udhar)</label>
+        <input type="date" name="due_date" id="due-date-input" class="form-control">
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Inline Item Menu -->
+  <div class="card mb-4">
+    <div class="card-body">
+      <h5 class="mb-3">Add Item</h5>
+
+      <div class="row g-2 align-items-end">
+        <!-- Product -->
+        <div class="col-md-4">
+          <label class="form-label">Product</label>
+          <select id="item-product" class="form-select">
+            <option value="">-- Select Product --</option>
+            {% for p in products %}
+              <option value="{{ p.id }}"
+                      data-unit="{{ p.unit }}"
+                      data-price="{{ p.sell_price }}">
+                {{ p.name }}
+              </option>
+            {% endfor %}
+          </select>
+        </div>
+
+        <!-- Quantity -->
+        <div class="col-md-2">
+          <label class="form-label">Quantity</label>
+          <input type="number" id="item-qty" class="form-control" min="1">
+        </div>
+
+        <!-- Unit (auto-filled) -->
+        <div class="col-md-2">
+          <label class="form-label">Unit</label>
+          <input type="text" id="item-unit" class="form-control" readonly>
+        </div>
+
+        <!-- Price per Unit -->
+        <div class="col-md-2">
+          <label class="form-label">Price / Unit</label>
+          <input type="number" id="item-price" class="form-control" step="0.01" min="0">
+        </div>
+
+        <!-- Line Total -->
+        <div class="col-md-2">
+          <label class="form-label">Line Total</label>
+          <input type="text" id="item-line-total" class="form-control" readonly>
+        </div>
+      </div>
+
+      <div class="mt-3">
+        <button type="button" class="btn btn-secondary" id="add-item-btn">
+          Add Item to Bill
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Bill Items Table -->
+  <div class="card mb-4">
+    <div class="card-body">
+      <h5 class="mb-3">Bill Items</h5>
+
+      <table class="table table-bordered">
+        <thead>
+          <tr>
+            <th>Product</th>
+            <th>Quantity</th>
+            <th>Unit</th>
+            <th>Price per Unit</th>
+            <th>Line Total</th>
+          </tr>
+        </thead>
+        <tbody id="items-body">
+          <!-- rows added by JS -->
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Hidden inputs that will be sent to backend -->
+  <div id="hidden-items"></div>
+
+  <button type="submit" class="btn btn-primary mt-3">Create Bill</button>
+
+</form>
+
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    const productSelect = document.getElementById("item-product");
+    const qtyInput = document.getElementById("item-qty");
+    const unitInput = document.getElementById("item-unit");
+    const priceInput = document.getElementById("item-price");
+    const lineTotalInput = document.getElementById("item-line-total");
+    const addItemBtn = document.getElementById("add-item-btn");
+
+    const itemsBody = document.getElementById("items-body");
+    const hiddenItemsDiv = document.getElementById("hidden-items");
+    const grandTotalSpan = document.getElementById("grand-total");
+
+    const payNowRadio = document.getElementById("pay_now");
+    const payLaterRadio = document.getElementById("pay_later");
+    const dueDateBlock = document.getElementById("due-date-block");
+    const dueDateInput = document.getElementById("due-date-input");
+
+    let grandTotal = 0;
+
+    // Toggle due date field
+    function toggleDueDate() {
+      if (payLaterRadio.checked) {
+        dueDateBlock.style.display = "block";
+      } else {
+        dueDateBlock.style.display = "none";
+        if (dueDateInput) {
+          dueDateInput.value = "";
+        }
+      }
+    }
+
+    payNowRadio.addEventListener("change", toggleDueDate);
+    payLaterRadio.addEventListener("change", toggleDueDate);
+    toggleDueDate();
+
+    // When product changes, auto-fill unit and default price
+    productSelect.addEventListener("change", function () {
+      const option = productSelect.options[productSelect.selectedIndex];
+      const unit = option.getAttribute("data-unit") || "";
+      const defaultPrice = option.getAttribute("data-price");
+
+      unitInput.value = unit;
+
+      if (defaultPrice) {
+        priceInput.value = parseFloat(defaultPrice).toFixed(2);
+      }
+
+      updateLineTotal();
+    });
+
+    function updateLineTotal() {
+      const q = parseFloat(qtyInput.value) || 0;
+      const p = parseFloat(priceInput.value) || 0;
+      const lt = q * p;
+      if (lt > 0) {
+        lineTotalInput.value = lt.toFixed(2);
+      } else {
+        lineTotalInput.value = "";
+      }
+    }
+
+    qtyInput.addEventListener("input", updateLineTotal);
+    priceInput.addEventListener("input", updateLineTotal);
+
+    addItemBtn.addEventListener("click", function () {
+      const productId = productSelect.value;
+      const productName = productSelect.options[productSelect.selectedIndex]?.text || "";
+      const unit = unitInput.value;
+      const qty = parseFloat(qtyInput.value);
+      const price = parseFloat(priceInput.value);
+      const lineTotal = qty * price;
+
+      if (!productId || !productName || !qty || !price) {
+        alert("Please select product, enter quantity and price.");
+        return;
+      }
+
+      // 1) Add row to visible table
+      const tr = document.createElement("tr");
+      tr.innerHTML = `
+        <td>${productName}</td>
+        <td>${qty}</td>
+        <td>${unit}</td>
+        <td>${price.toFixed(2)}</td>
+        <td>${lineTotal.toFixed(2)}</td>
+      `;
+      itemsBody.appendChild(tr);
+
+      // 2) Add hidden inputs so backend receives arrays
+      const hidden = document.createElement("div");
+      hidden.innerHTML = `
+        <input type="hidden" name="product_id[]" value="${productId}">
+        <input type="hidden" name="quantity[]" value="${qty}">
+        <input type="hidden" name="price[]" value="${price}">
+      `;
+      hiddenItemsDiv.appendChild(hidden);
+
+      // 3) Update grand total
+      grandTotal += lineTotal;
+      grandTotalSpan.textContent = grandTotal.toFixed(2);
+
+      // 4) Clear inputs for next item
+      productSelect.value = "";
+      unitInput.value = "";
+      qtyInput.value = "";
+      priceInput.value = "";
+      lineTotalInput.value = "";
+    });
+  });
+</script>
+
+{% endblock %}

@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+{% block content %}
+
+<div class="container mt-4">
+  <h2 class="mb-4">Stock & Investment</h2>
+
+  <table class="table table-striped">
+    <thead>
+      <tr>
+        <th>Product Name</th>
+        <th>Cost Price</th>
+        <th>Stock</th>
+        <th>Unit</th>
+        <th>Invested Amount</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for p in products %}
+      <tr>
+        <td>{{ p.name }}</td>
+        <td>{{ p.cost_price }}</td>
+        <td>{{ p.stock }}</td>
+        <td>{{ p.unit }}</td>
+        <td>{{ p.invested }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+
+  <div class="mt-4">
+    <h5>Total Investment:</h5>
+    <p class="fw-bold">₹ {{ total_invested }}</p>
+  </div>
+</div>
+
+{% endblock %}
