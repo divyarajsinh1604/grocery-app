@@ -7,7 +7,7 @@ from stock import stock
 from billing import billing
 from customers import customers_bp
 
-from models import get_db, migrate_customers_table, init_db, create_admin
+from models import get_db, migrate_customers_table, init_db
 
 app = Flask(__name__)
 app.secret_key = "change_this_later"   # use something random in real life
@@ -16,7 +16,7 @@ migrate_customers_table()
 # ---- DB INIT (runs once on startup) ----
 with app.app_context():
     init_db()
-    create_admin()
+    
 
 # ---- REGISTER BLUEPRINTS ----
 app.register_blueprint(auth)

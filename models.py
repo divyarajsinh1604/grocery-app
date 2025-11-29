@@ -1,10 +1,33 @@
 import sqlite3
 from werkzeug.security import generate_password_hash
 
+DB_NAME = "grocery_v2.db"   # NEW FILE, fresh DB
+
+
+import sqlite3
+from werkzeug.security import generate_password_hash
+
 def get_db():
     conn = sqlite3.connect("grocery_v2.db")
     conn.row_factory = sqlite3.Row
     return conn
+
+# 🔧 ADD THIS FUNCTION
+def migrate_customers_table():
+    """Ensure customers table has next_payment_date column."""
+    conn = get_db()
+    cur = conn.cursor()
+
+    # Read existing columns
+    cur.execute("PRAGMA table_info(customers)")
+    cols = [row[1] for row in cur.fetchall()]   # row[1] = column name
+
+    # If column missing -> add it
+    if "next_payment_date" not in cols:
+        cur.execute("ALTER TABLE customers ADD COLUMN next_payment_date TEXT")
+        conn.commit()
+
+    conn.close()
 
 def init_db():
     conn = get_db()
@@ -31,7 +54,7 @@ def init_db():
     );
     """)
 
-    # Customers table – IMPORTANT: IF NOT EXISTS + next_payment_date
+    # Customers table WITH next_payment_date
     cur.execute("""
     CREATE TABLE IF NOT EXISTS customers (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -85,3 +108,8 @@ def create_admin():
 
     conn.commit()
     conn.close()
+
+
+if __name__ == "__main__":
+    init_db()
+    create_admin()
