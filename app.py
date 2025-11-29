@@ -1,5 +1,6 @@
-from flask import Flask, render_template, redirect, session
+from flask import Flask, render_template, redirect, url_for, session
 from datetime import datetime
+import os
 
 from auth import auth
 from products import products
@@ -7,18 +8,19 @@ from stock import stock
 from billing import billing
 from customers import customers_bp
 
-from models import get_db, migrate_customers_table, init_db
+from models import get_db, init_db, ensure_admin
+
 
 app = Flask(__name__)
-app.secret_key = "change_this_later"   # use something random in real life
-migrate_customers_table()
+app.secret_key = os.environ.get("SECRET_KEY", "dev-secret-key")
 
-# ---- DB INIT (runs once on startup) ----
-with app.app_context():
-    init_db()
-    
+# ---- IMPORTANT: init DB on startup ----
+init_db()
+ensure_admin()
+# ---------------------------------------
 
-# ---- REGISTER BLUEPRINTS ----
+
+# register blueprints
 app.register_blueprint(auth)
 app.register_blueprint(products)
 app.register_blueprint(stock)
@@ -26,14 +28,12 @@ app.register_blueprint(billing)
 app.register_blueprint(customers_bp)
 
 
-# ---- ROUTES ----
-
 @app.route("/")
-def index():
-    # always go to login first
+def root():
     if "user_id" in session:
-        return redirect("/dashboard")
-    return redirect("/login")
+        return redirect(url_for("dashboard"))   
+    # redirect to login or dashboard, whatever you decided
+    return redirect("/login")   # or "/dashboard"
 
 
 @app.route("/dashboard")
