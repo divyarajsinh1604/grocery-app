@@ -1,0 +1,4 @@
+grocery.db
+*.db
+*.sqlite
+*.sqlite3
