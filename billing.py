@@ -1,4 +1,4 @@
-from flask import Blueprint, render_template, request, redirect
+from flask import Blueprint, render_template, request, redirect, session
 from models import get_db
 from datetime import datetime
 
@@ -166,11 +166,13 @@ def billing_page():
     )
 
 
+
 @billing.route("/billing/<int:bill_id>")
 def invoice_page(bill_id):
     conn = get_db()
     cur = conn.cursor()
 
+    # 1) Load bill
     cur.execute("SELECT * FROM bills WHERE id = ?", (bill_id,))
     bill = cur.fetchone()
 
@@ -178,11 +180,13 @@ def invoice_page(bill_id):
         conn.close()
         return "Bill not found", 404
 
+    # 2) Load customer (if any)
     customer = None
     if bill["customer_id"] is not None:
         cur.execute("SELECT * FROM customers WHERE id = ?", (bill["customer_id"],))
         customer = cur.fetchone()
 
+    # 3) Load bill items joined with product name + unit
     cur.execute(
         """
         SELECT bi.quantity, bi.price, bi.line_total, p.name, p.unit
@@ -194,7 +198,30 @@ def invoice_page(bill_id):
     )
     items = cur.fetchall()
 
+    # 4) Load current logged-in user's shop info
+    owner = None
+    if "user_id" in session:
+        cur.execute(
+            """
+            SELECT shop_name, gst_number, full_name, phone
+            FROM users
+            WHERE id = ?
+            """,
+            (session["user_id"],),
+        )
+        owner = cur.fetchone()
+
     conn.close()
+
+    # 5) Pass 'owner' to template
+    return render_template(
+        "invoice.html",
+        bill=bill,
+        customer=customer,
+        items=items,
+        owner=owner,        # <-- important
+        show_nav=True,
+    )
 
     return render_template(
         "invoice.html",

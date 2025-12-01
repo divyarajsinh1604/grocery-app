@@ -3,16 +3,36 @@
 {% block content %}
 <div class="container mt-4" id="invoice-area">
   <!-- Header -->
-  <div class="d-flex justify-content-between align-items-center mb-3">
-    <div>
-      <h3>Your Grocery Store</h3>
-      <p class="mb-0">Simple Billing System</p>
-    </div>
-    <div class="text-end">
-      <p class="mb-0"><strong>Bill No:</strong> {{ bill.id }}</p>
-      <p class="mb-0"><strong>Date:</strong> {{ bill.created_at }}</p>
-    </div>
+ 
+
+<div class="container mt-4">
+
+  <!-- SHOP HEADER -->
+  <div class="mb-4">
+    {% if owner %}
+      <h3 class="mb-1">{{ owner.shop_name or "Your Shop Name" }}</h3>
+
+      {% if owner.gst_number %}
+        <p class="mb-0">GSTIN: {{ owner.gst_number }}</p>
+      {% endif %}
+
+      {% if owner.full_name or owner.phone %}
+        <p class="mb-0">
+          {% if owner.full_name %}Owner: {{ owner.full_name }}{% endif %}
+          {% if owner.phone %} | Phone: {{ owner.phone }}{% endif %}
+        </p>
+      {% endif %}
+    {% else %}
+      <h3>Your Shop</h3>
+    {% endif %}
   </div>
+
+  <!-- REST OF YOUR INVOICE LAYOUT -->
+  <!-- Example: Bill info, customer info, items table, totals, print button etc -->
+
+</div>
+
+
 
   <hr>
 

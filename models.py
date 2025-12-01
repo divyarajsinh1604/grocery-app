@@ -14,14 +14,20 @@ def init_db():
     conn = get_db()
     cur = conn.cursor()
 
-    # ----- Users -----
+    # USERS TABLE
     cur.execute("""
     CREATE TABLE IF NOT EXISTS users (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         username TEXT UNIQUE NOT NULL,
-        password_hash TEXT NOT NULL
+        password_hash TEXT NOT NULL,
+        full_name TEXT,
+        phone TEXT,
+        shop_name TEXT,
+        gst_number TEXT
     );
     """)
+
+    # ... rest of your tables (products, customers, bills, bill_items) ...
 
     # ----- Products (with unit) -----
     cur.execute("""
@@ -71,6 +77,37 @@ def init_db():
         FOREIGN KEY (product_id) REFERENCES products(id)
     );
     """)
+
+    conn.commit()
+    conn.close()
+
+    import sqlite3  # make sure this is imported at top
+
+def migrate_users_table():
+    conn = get_db()
+    cur = conn.cursor()
+
+    # Try to add columns if they don't exist.
+    # If they already exist, ignore the error.
+    try:
+        cur.execute("ALTER TABLE users ADD COLUMN full_name TEXT")
+    except sqlite3.OperationalError:
+        pass
+
+    try:
+        cur.execute("ALTER TABLE users ADD COLUMN phone TEXT")
+    except sqlite3.OperationalError:
+        pass
+
+    try:
+        cur.execute("ALTER TABLE users ADD COLUMN shop_name TEXT")
+    except sqlite3.OperationalError:
+        pass
+
+    try:
+        cur.execute("ALTER TABLE users ADD COLUMN gst_number TEXT")
+    except sqlite3.OperationalError:
+        pass
 
     conn.commit()
     conn.close()

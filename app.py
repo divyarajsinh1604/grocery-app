@@ -8,15 +8,18 @@ from stock import stock
 from billing import billing
 from customers import customers_bp
 
-from models import get_db, init_db, ensure_admin
+from models import get_db, init_db, ensure_admin, migrate_users_table
 
+from models import get_db
 
 app = Flask(__name__)
 app.secret_key = os.environ.get("SECRET_KEY", "dev-secret-key")
 
 # ---- IMPORTANT: init DB on startup ----
 init_db()
+migrate_users_table()
 ensure_admin()
+
 # ---------------------------------------
 
 
@@ -26,6 +29,8 @@ app.register_blueprint(products)
 app.register_blueprint(stock)
 app.register_blueprint(billing)
 app.register_blueprint(customers_bp)
+
+
 
 
 @app.route("/")
